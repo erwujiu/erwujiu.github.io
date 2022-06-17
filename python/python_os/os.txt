@@ -1,0 +1,87 @@
+os.getcwd    # 返回当前路径  返回值:字符串
+os.listdir     #返回指定路径下所有的文件或文件夹  返回值:列表
+
+os.remove()用于删除文件，如果指定路径是目录而非文件的话，就会抛出IsADirectoryError异常。删除目录应该使用os.rmdir()函数。
+
+os.makedirs  #创建多级文件夹 没给路径就会在相对路径下创建
+os.mkdir  #创建当个文件夹
+
+os.removedirs  #删除多级文件夹
+
+os.rename(src, dst)，即将src指向的文件或路径重命名为dst指定的名称。
+注意，如果指定的目标路径在其他目录下，该函数还可实现文件或路径的“剪切并粘贴”功能。但无论直接原地重命名还是“剪切粘贴”，中间路径都必须要存在，否则就会抛出FileNotFoundError异常。如果目标路径已存在，Windows 下会抛出FileExistsError异常；Linux 下，如果目标路径为空且用户权限允许，则会静默覆盖原路径，否则抛出OSError异常，
+和上两个函数一样，该函数也有对应的递归版本os.renames()，能够创建缺失的中间路径。
+注意，这两种情况下，如果函数执行成功，都会调用os.removedir()函数来递归删除源路径的最下级目录。
+
+
+os.rmdir  #只能删除空文件
+删除非空文件夹可以导入shutil
+shutil.rmtree('c:/python编程')
+os.chdir()  #改变当前脚本工作目录，相当于shell下cd
+print(os.path.join(os.getcwd(),'venv'))  #效果 C:\Users\yu\venv
+
+with os.scandir('c:/') as entries:
+    for entry in entries:
+        print(entry.name)
+
+os.path.exists("图片")  这个是判断文件或文件夹是否在当前目录存在
+os.path.isfile("图片")  这个只是文件
+
+os.path.join()
+这是一个十分实用的函数，可以将多个传入路径组合为一个路径。实际上是将传入的几个字符串用系统的分隔符连接起来，组合成一个新的字符串，所以一般的用法是将第一个参数作为父目录，之后每一个参数即使下一级目录，从而组合成一个新的符合逻辑的路径。
+
+但如果传入路径中存在一个“绝对路径”格式的字符串，且这个字符串不是函数的第一个参数，那么其他在这个参数之前的所有参数都会被丢弃，余下的参数再进行组合。更准确地说，只有最后一个“绝对路径”及其之后的参数才会体现在返回结果中。
+
+>>> os.path.join("just", "do", "python", "dot", "com")
+'just\\do\\python\\dot\\com'
+>>> 
+>>> os.path.join("just", "do", "d:/", "python", "dot", "com")
+'d:/python\\dot\\com'
+>>> 
+>>> os.path.join("just", "do", "d:/", "python", "dot", "g:/", "com")
+'g:/com'
+
+os.path.abspath()
+将传入路径规范化，返回一个相应的绝对路径格式的字符串
+>>> os.path.abspath("a:/just/do/python")
+'a:\\just\\do\\python'
+
+当指定的路径不符合上述格式时，该函数会自动获取当前工作路径，并使用os.path.join()函数将其与传入的参数组合成为一个新的路径字符串。示例如下：
+>>> os.path.abspath("ityouknow")
+'D:\\justdopython\\ityouknow'
+
+os.path.basename()
+该函数返回传入路径的“基名”，即传入路径的最下级目录。
+
+>>> os.path.basename("/ityouknow/justdopython/IAmBasename")
+'IAmBasename'
+>>> # 我的系统中同样没有这么一个路径。可见 os.path.basename() 页是单纯进行字符串处理
+
+整这个函数要注意的一点是，返回的“基名”实际上是传入路径最后一个分隔符之后的子字符串，也就是说，如果最下级目录之后还有一个分隔符，得到的就会是一个空字符串：
+
+>>> os.path.basename("/ityouknow/justdopython/IAmBasename/")
+''
+
+os.path.dirname()
+与上一个函数正好相反，返回的是最后一个分隔符前的整个字符串：
+
+os.path.split()
+哈哈实际上前两个函数都是弟弟，这个函数才是老大。
+
+函数os.path.split()的功能就是将传入路径以最后一个分隔符为界，分成两个字符串，并打包成元组的形式返回；前两个函数os.path.dirname()和os.path.basename()的返回值分别是函数os.path.split()返回值的第一个、第二个元素。就连二者的具体实现都十分真实：
+
+def basename(p):
+    """Returns the final component of a pathname"""
+    return split(p)[1]
+
+
+def dirname(p):
+    """Returns the directory component of a pathname"""
+    return split(p)[0]
+通过os.path.join()函数又可以把它们组合起来得到原先的路径。
+
+os.path.isabs()
+该函数判断传入路径是否是绝对路径，若是则返回True，否则返回False。当然，仅仅是检测格式，同样不对其有效性进行任何核验：
+
+ os.path.isfile() 和 os.path.isdir()
+这两个函数分别判断传入路径是否是文件或路径，注意，此处会核验路径的有效性，如果是无效路径将会持续返回False。
